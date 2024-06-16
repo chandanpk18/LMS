@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #004d40;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        header .logo {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+        }
+
+        header .header-title {
+            font-size: 24px;
+        }
+
+        header .user-profile {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        header .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        header .user-profile .logout-btn {
+            background-color: #ff6f61;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .container {
+            display: flex;
+            margin-top: 5px;
+        }
+
+        nav.sidebar {
+            width: auto;
+            background-color: #004d40;
+            padding: 20px;
+            color: #fff;
+            height: calc(100vh - 80px);
+            position: fixed;
+            top: 80px;
+            left: 0;
+            overflow-y: auto;
+        }
+
+        nav.sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav.sidebar ul li {
+            margin-bottom: 10px;
+        }
+
+        nav.sidebar ul li a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        nav.sidebar ul li a:hover {
+            background-color: #ff6f61;
+        }
+
+        main.main-content {
+            margin-left: 220px;
+            padding: 20px;
+            width: calc(100% - 220px);
+        }
+
+        section.welcome-message {
+            background-color: #004d40;
+            color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        section.search-filter {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-bar {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #004d40;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f4f4f4;
+        }
+
+        tr:hover {
+            background-color: #e9e9e9;
+        }
+
+        .issued-books ul,
+        .available-books .book-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .issued-books ul li,
+        .available-books .book-item {
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .issued-books ul li button,
+        .available-books .book-item button {
+            background-color: #004d40;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .issued-books ul li button:hover,
+        .available-books .book-item button:hover {
+            background-color: #ff6f61;
+        }
+
+        a{
+        color:red;
+        text-decoration:none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">Library Management System - Admin Dashboard</div>
+        <div class="user-profile">
+            <span>Welcome, Admin</span>
+            <button class="logout-btn"><a href="{% url 'signout' %}" style="color:white;text-decoration:none;">Logout</a></button>
+        </div>
+    </header>
+    <div class="container">
+        <nav class="sidebar">
+            <ul>
+                <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'add_book' %}">Add New Book</a></li>
+            </ul>
+        </nav>
+        <main class="main-content">
+            <section class="welcome-message">
+                <h1>Welcome to the Library Admin Dashboard</h1>
+            </section>
+            <section class="search-filter">
+                <input type="text" id="search-issued-bar" class="search-bar" onkeyup="filterIssuedBooks()" placeholder="Search for issued books..">
+            </section>
+            <section class="issued-books">
+                <h2>Issued Books</h2>
+                <table id="issued-books-table">
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>ISBN</th>
+                            <th>Issued To</th>
+                            <th>Due Date</th>
+                            <th>Fine Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for issued_book in issued_books %}
+                        <tr>
+                            <td>{{ issued_book.book.title }}</td>
+                            <td>{{ issued_book.isbn }}</td> <!-- Display ISBN -->
+                            <td>{{ issued_book.user.username }}</td>
+                            <td>{{ issued_book.due_date }}</td>
+                            <td>{{ issued_book.fine_amount }}</td>
+                            <td><a href="{% url 'return_book' issued_book.id %}">Return</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="search-filter">
+                <input type="text" id="search-bar" class="search-bar" onkeyup="filterBooks()" placeholder="Search by title, author, ISBN or category..">
+            </section>
+            <section class="available-books">
+                <h2>Available Books</h2>
+                <table id="books-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>ISBN</th>
+                            <th>Author</th>
+                            <th>Category</th>
+                            <th>Available Copies</th>
+                            <th>Floor, Section, Shelves</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in books %}
+                        <tr>
+                            <td>{{ book.title }}</td>
+                            <td>{{ book.isbn }}</td>
+                            <td>{{ book.author }}</td>
+                            <td>{{ book.category }}</td>
+                            <td>{{ book.available_copies }}</td>
+                            <td>{{ book.location }}</td> <!-- Display location -->
+                            <td><a href="{% url 'issue_book' book.id %}">Issue</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <script>
+        function filterBooks() {
+            var searchInput = document.getElementById("search-bar").value.toLowerCase();
+            var table = document.getElementById("books-table");
+            var tr = table.getElementsByTagName("tr");
+
+            for (var i = 1; i < tr.length; i++) {
+                var tdTitle = tr[i].getElementsByTagName("td")[0];
+                var tdAuthor = tr[i].getElementsByTagName("td")[1];
+                var tdISBN = tr[i].getElementsByTagName("td")[2];
+                var tdCategory = tr[i].getElementsByTagName("td")[3];
+
+                if (tdTitle || tdAuthor || tdISBN || tdCategory) {
+                    var titleText = tdTitle.textContent || tdTitle.innerText;
+                    var authorText = tdAuthor.textContent || tdAuthor.innerText;
+                    var isbnText = tdISBN.textContent || tdISBN.innerText;
+                    var categoryText = tdCategory.textContent || tdCategory.innerText;
+
+                    if (titleText.toLowerCase().indexOf(searchInput) > -1 ||
+                        authorText.toLowerCase().indexOf(searchInput) > -1 ||
+                        isbnText.toLowerCase().indexOf(searchInput) > -1 ||
+                        categoryText.toLowerCase().indexOf(searchInput) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function filterIssuedBooks() {
+            var searchInput = document.getElementById("search-issued-bar").value.toLowerCase();
+            var table = document.getElementById("issued-books-table");
+            var tr = table.getElementsByTagName("tr");
+
+            for (var i = 1; i < tr.length; i++) {
+                var tdTitle = tr[i].getElementsByTagName("td")[0];
+                var tdUser = tr[i].getElementsByTagName("td")[2];
+
+                if (tdTitle || tdUser) {
+                    var titleText = tdTitle.textContent || tdTitle.innerText;
+                    var userText = tdUser.textContent || tdUser.innerText;
+
+                    if (titleText.toLowerCase().indexOf(searchInput) > -1 || userText.toLowerCase().indexOf(searchInput) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

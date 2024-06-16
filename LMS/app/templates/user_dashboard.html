@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #004d40;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        header .header-title {
+            font-size: 24px;
+        }
+
+        header .user-profile {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        header .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        header .user-profile .logout-btn {
+            background-color: #ff6f61;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        main.main-content {
+            padding: 20px;
+        }
+
+        section.search-filter {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-bar {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        section h2 {
+            border-bottom: 2px solid #004d40;
+            padding-bottom: 5px;
+        }
+
+        .book-table, .issued-books-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .book-table th, .book-table td, .issued-books-table th, .issued-books-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .book-table th, .issued-books-table th {
+            background-color: #004d40;
+            color: #fff;
+        }
+
+        footer {
+            background-color: #004d40;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Library Management System - User Dashboard</h1>
+        <div class="user-profile">
+            <a href="{% url 'signout' %}" class="logout-btn" style="text-decoration:none;">Logout</a>
+        </div>
+    </header>
+    <main class="main-content">
+        <section class="search-filter">
+            <input type="text" id="search-bar" class="search-bar" onkeyup="filterBooks()" placeholder="Search by title, author, or ISBN">
+        </section>
+
+        <h2>Available Books</h2>
+        <table class="book-table" id="books-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>ISBN</th>
+                    <th>Category</th>
+                    <th>Floor,Section,Shelves</th>
+                    <th>Available Copies</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.isbn }}</td>
+                    <td>{{ book.category }}</td>
+                    <td>{{ book.location }}</td>
+                    <td>{{ book.available_copies }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Issued Books</h2>
+        <table class="issued-books-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Due Date</th>
+                    <th>Fine Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if issued_books %}
+                    {% for issued_book in issued_books %}
+                    <tr>
+                        <td>{{ issued_book.book.title }}</td>
+                        <td>{{ issued_book.book.author }}</td>
+                        <td>{{ issued_book.due_date }}</td>
+                        <td>{{ issued_book.fine_amount }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5">No books issued.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        function filterBooks() {
+            var searchInput = document.getElementById("search-bar").value.toLowerCase();
+            var table = document.getElementById("books-table");
+            var tr = table.getElementsByTagName("tr");
+
+            for (var i = 1; i < tr.length; i++) {
+                var tdTitle = tr[i].getElementsByTagName("td")[0];
+                var tdAuthor = tr[i].getElementsByTagName("td")[1];
+                var tdISBN = tr[i].getElementsByTagName("td")[2];
+                var tdCategory = tr[i].getElementsByTagName("td")[3];
+
+                if (tdTitle || tdAuthor || tdISBN || tdCategory) {
+                    var titleText = tdTitle.textContent || tdTitle.innerText;
+                    var authorText = tdAuthor.textContent || tdAuthor.innerText;
+                    var isbnText = tdISBN.textContent || tdISBN.innerText;
+                    var categoryText = tdCategory.textContent || tdCategory.innerText;
+
+                    if (titleText.toLowerCase().indexOf(searchInput) > -1 ||
+                        authorText.toLowerCase().indexOf(searchInput) > -1 ||
+                        isbnText.toLowerCase().indexOf(searchInput) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
